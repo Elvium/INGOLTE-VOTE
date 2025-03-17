@@ -85,71 +85,111 @@ if ($ccSocio != null) {
 <head>
   <meta charset="UTF-8">
   <title> VOTACIONES </title>
-  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+  <style>
+    body {
+      background: linear-gradient(to right, #d4edda, #a8df8e);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .container-form {
+      background: #fff;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 450px;
+      margin: auto;
+    }
+    .form-control {
+      border-radius: 10px;
+      border: 1px solid #a8df8e;
+    }
+    .form-control:focus {
+      border-color: #28a745;
+      box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+    }
+    .btn-custom {
+      background-color: #28a745;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      padding: 10px;
+      transition: background 0.3s ease;
+    }
+    .btn-custom:hover {
+      background-color: #218838;
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .grid-item {
+      background: #e9f5e9;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .grid-item label {
+      font-weight: bold;
+    }
+    .footer {
+      background-color: #28a745;
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      margin-top: auto;
+    }
+  </style>
 </head>
-
 <body>
-<header>
-    <nav>
-      <ul>
-        
 
-      </ul>
-    </nav>
-  </header>
-  <br>
-  <div class="radiobutton">
-
-    <h1>Votación</h1>
-    <p> </p>
+  <div class="container-form">
+    <h2 class="text-center text-success">Votación</h2>
+    
     <form method="post">
-      <input type="text" class="texto" name="ccSocio" placeholder="Cedula del Votante" required="required" />
+      <div class="mb-3">
+        <input type="text" name="ccSocio" class="form-control" placeholder="Cédula del Votante" required />
+      </div>
 
-
-      
-      <div class="radiobutton">
-
-     
-        <div class="grid-container">
-          <?php
-
-          $sqlcandidatos = "SELECT  * FROM plancha ";
+      <div class="grid-container">
+        <?php
+          $sqlcandidatos = "SELECT * FROM plancha";
           $ejecucionCandidatos = mysqli_query($conexion, $sqlcandidatos);
 
-
           while ($row = mysqli_fetch_array($ejecucionCandidatos)) {
-
-            echo '<div class="grid-item"> <label>' . $row['Nombre'] . '</label><br> <input type="radio" name="plancha" value="' . $row['ID'] . '"></div>';
-
+            echo '<div class="grid-item">
+                    <label>' . $row['Nombre'] . '</label><br> 
+                    <input type="radio" name="plancha" value="' . $row['ID'] . '" required>
+                  </div>';
           }
-          ?>
+        ?>
+      </div>
 
-        </div>
-
-        <div class="botonbajo">
-          <button type="submit" class="btn btn-primary btn-block btn-large">Votar</button>
-
-        </div>
+      <button type="submit" class="btn btn-custom w-100 mt-3">Votar</button>
     </form>
   </div>
-  <footer>
-<?php
-$sqlcantVotantes = "SELECT  count(*) as vot FROM votaciones";
-$ejectvota = mysqli_query($conexion, $sqlcantVotantes);
 
-echo '<p>  &emsp;  </p>';
+  <footer class="footer">
+    <?php
+      $sqlcantVotantes = "SELECT COUNT(*) as vot FROM votaciones";
+      $ejectvota = mysqli_query($conexion, $sqlcantVotantes);
+      
+      $votantesActuales = 0;
+      if ($row = mysqli_fetch_array($ejectvota)) {
+        $votantesActuales = $row['vot'];
+      }
 
-if ($row = mysqli_fetch_array($ejectvota)) {
-$votantesActuales= $row['vot'];
-
-}
-echo'<p>VOTANTES ACTUALES : &emsp;'.$votantesActuales.' </p>';
-
-
-
-?>
-
-
+      echo "<p>Votantes Actuales: <strong>" . number_format($votantesActuales) . "</strong></p>";
+    ?>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+</html>

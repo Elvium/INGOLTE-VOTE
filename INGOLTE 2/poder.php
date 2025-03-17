@@ -87,71 +87,96 @@ if ($ccSocio != null) {
 <head>
   <meta charset="UTF-8">
   <title> VOTACIONES </title>
-  <link rel="stylesheet" type="text/css" href="css/style.css">
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  
+  <style>
+    body {
+      background: linear-gradient(to right, #d4edda, #a8df8e);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .container-form {
+      background: #fff;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      margin: auto;
+    }
+    .form-control {
+      border-radius: 10px;
+      border: 1px solid #a8df8e;
+    }
+    .form-control:focus {
+      border-color: #28a745;
+      box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+    }
+    .btn-custom {
+      background-color: #28a745;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      padding: 10px;
+      transition: background 0.3s ease;
+    }
+    .btn-custom:hover {
+      background-color: #218838;
+    }
+    .footer {
+      background-color: #28a745;
+      color: white;
+      padding: 10px;
+      border-radius: 10px;
+      text-align: center;
+      margin-top: auto;
+    }
+  </style>
 </head>
-
 <body>
 
-  <header>
-    <nav>
-      <ul>
-       
+  <div class="container-form">
+    <h2 class="text-center text-success">Entregar Poder</h2>
+    <p class="text-center">El accionista le confiere sus acciones al apoderado.</p>
 
-
-      </ul>
-    </nav>
-
-  </header>
-  <br>
-  <div>
-
-    <h1>ENTREGAR PODER</h1>
-
-    <form method="post" class="formulario">
-      <p>el Accionista le confiere sus acciones al apoderado
-      </p>
-      <input type="text" name="ccSocio" placeholder="Cédula Socio" required="required" />
-      <input type="text" name="ccApoderado" placeholder="Cédula Apoderado" required="required" />
-
-      <input type="date" name="fecha" value="2023-10-31" min="2023-10-01" max="2023-11-01" />
-
-      <button type="submit" class="btn btn-primary btn-block btn-large">Confirmar</button>
+    <form method="post">
+      <div class="mb-3">
+        <input type="text" name="ccSocio" class="form-control" placeholder="Cédula Socio" required />
+      </div>
+      <div class="mb-3">
+        <input type="text" name="ccApoderado" class="form-control" placeholder="Cédula Apoderado" required />
+      </div>
+      <div class="mb-3">
+        <input type="date" name="fecha" class="form-control" value="2023-10-31" min="2023-10-01" max="2023-11-01" />
+      </div>
+      <button type="submit" class="btn btn-custom w-100">Confirmar</button>
     </form>
-    <form action="impresAccionistas.php" class="botonbajito">
-      <button type="submit" class="btn btn-primary btn-large">Reporte</button>
+
+    <form action="impresAccionistas.php" class="mt-3">
+      <button type="submit" class="btn btn-custom w-100">Generar Reporte</button>
     </form>
   </div>
 
-  <div>
-
-  </div>
-
-
-  <footer>
-
+  <footer class="footer">
     <?php
+      $sqlSocioActual = "SELECT count(*) as tconteo, sum(Acciones) as tacciones, sum(Poder) as tPoder FROM base";
+      $ejecucionConteo = mysqli_query($conexion, $sqlSocioActual);
+      $sqlconsultaApoderado = "SELECT sum(Acciones) as tPoderes FROM base WHERE Poder=1";
+      $ejecucionConteoApoderado = mysqli_query($conexion, $sqlconsultaApoderado);
 
-    $sqlSocioActual = "SELECT  count(*) as tconteo,sum(Acciones) as tacciones,sum(Poder) as tPoder  FROM base";
-    $ejecucionConteo = mysqli_query($conexion, $sqlSocioActual);
-    $sqlconsultaApoderado = "SELECT sum(Acciones) as tPoderes FROM base WHERE Poder=1";
-    $ejecucionConteoApoderado = mysqli_query($conexion, $sqlconsultaApoderado);
+      if ($row = $ejecucionConteoApoderado->fetch_assoc()) {
+          $cantidadAccionesApoderado += $row['tPoderes'];
+      }
 
-    if ($row = $ejecucionConteoApoderado->fetch_assoc()) {
-
-      $cantidadAccionesApoderado += $row['tPoderes'];
-    }
-
-
-    if ($row = $ejecucionConteo->fetch_assoc()) {
-
-
-      echo '<p> ACCIONISTAS :  ' . number_format($row['tconteo']) . '&emsp;&emsp;&emsp;  acciones:  ' . number_format($row['tacciones']) . ' </p>
-        <p> Apoderados: ' . number_format($row['tPoder']) . '&emsp;&emsp;&emsp;  Acciones: ' . number_format($cantidadAccionesApoderado) . '</p>';
-
-
-    }
+      if ($row = $ejecucionConteo->fetch_assoc()) {
+          echo "<p>Accionistas: <strong>" . number_format($row['tconteo']) . "</strong> | Acciones: <strong>" . number_format($row['tacciones']) . "</strong></p>";
+          echo "<p>Apoderados: <strong>" . number_format($row['tPoder']) . "</strong> | Acciones: <strong>" . number_format($cantidadAccionesApoderado) . "</strong></p>";
+      }
     ?>
-
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+</html>
