@@ -1,0 +1,34 @@
+HOSTING:
+https://micuenta.donweb.com/es-co/servicios/hosting-revendedores
+usuario : grupoyanez2012@gmail.com
+clave  Colombia2023@$
+
+
+DOMINIO:
+votaringolte.online
+
+email ingesumetel2000@hotmail.com
+
+dominio   votaringolte.online
+(hostinger)
+Hosting   DONWEB.COM
+
+   
+Panel de control - WORDPRESS   
+usuario   c1382566
+clave     lanoGOba94
+
+ACCESO A ADMINISTRADOR 
+http://votaringolte.online/wp-login.php
+
+email 
+usuario  info@votaringolte.online
+clave    lanoGOba94@
+
+Acceso por FTP
+usuario  c1382566.ferozo.com / 21
+clave    lanoGOba94
+
+
+usuario  user
+clave    lanoGOba94
