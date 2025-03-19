@@ -1,8 +1,10 @@
 <?php
+
 include 'db-conexion.php';
 
 $ccSocio = $_POST['ccSocio'] ?? null;
 $plancha = $_POST['plancha'] ?? null;
+
 $votantesActuales = 0;
 
 if ($ccSocio != null) {
@@ -18,62 +20,36 @@ if ($ccSocio != null) {
             $sqlVotacion = "INSERT INTO votaciones (Cedula, Nombre, Plancha, Acciones) VALUES ('$ccSocio', '$comprobador', '$plancha', '$cantAcciones')";
             $Ejecutar2 = mysqli_query($conexion, $sqlVotacion);
 
-            if (!$Ejecutar2) {
-                echo '<script>
-                    alert("Error inesperado, contactar con tecnico");
-                    </script>';
-            } else {
+            if ($Ejecutar2) {
                 $sqlSiVoto = "UPDATE asistencia SET Voto = 1 WHERE Cedula='$ccSocio'";
-                $Ejecutar1 = mysqli_query($conexion, $sqlSiVoto);
+                mysqli_query($conexion, $sqlSiVoto);
 
-                if (!$Ejecutar1) {
-                } else {
-                    $sqlcalcularVotacion = "UPDATE plancha SET TotalAcciones = TotalAcciones + $cantAcciones WHERE ID = '$plancha'";
-                    $ejecutar3 = mysqli_query($conexion, $sqlcalcularVotacion);
+                $sqlcalcularVotacion = "UPDATE plancha SET TotalAcciones = TotalAcciones + $cantAcciones WHERE ID ='$plancha'";
+                mysqli_query($conexion, $sqlcalcularVotacion);
 
-                    if (!$ejecutar3) {
-                        echo '<script>
-                            alert("Inconveniente al registrar su voto, avise al encargado mas cercano");
-                            </script>';
-                    } else {
-                        // Mostrar la información del voto y preparar la impresión
-                        $sqlPlanchaInfo = "SELECT Nombre FROM plancha WHERE ID = '$plancha'";
-                        $resultadoPlancha = mysqli_query($conexion, $sqlPlanchaInfo);
-                        $planchaNombre = '';
-                        if ($rowPlancha = mysqli_fetch_assoc($resultadoPlancha)) {
-                            $planchaNombre = $rowPlancha['Nombre'];
-                        }
-
-                        echo '<script>
-                        alert("Su voto ha sido registrado con éxito. Usted votó por: ' . $planchaNombre . ' con ' . $cantAcciones . ' acciones.");
-                        window.onload = function() {
-                          var printContents = "<h2>Detalles del Voto</h2><p><strong>Fecha:</strong> " + new Date().toLocaleDateString() + "</p><p><strong>Plancha:</strong> ' . $planchaNombre . '</p><p><strong>Acciones:</strong> ' . $cantAcciones . '</p>";
-                          var originalContents = document.body.innerHTML;
-                          document.body.innerHTML = printContents;
-                          window.print();
-                          document.body.innerHTML = originalContents;
-                        };
-                        </script>';
-                    }
-                }
+                echo '<script>alert("Su voto ha sido registrado");</script>';
+            } else {
+                echo '<script>alert("Error inesperado, contactar con técnico");</script>';
             }
         } else {
-            echo '<script>
-            alert("El Accionista ya votó o está imposibilitado para votar");
-            </script>';
+            echo '<script>alert("El accionista ya votó o está imposibilitado para votar");</script>';
         }
     } else {
-        echo '<script>
-        alert("El Accionista puede no estar registrado en Asistencia, Consultar con el asistente más cercano");
-        </script>';
+        echo '<script>alert("El accionista no está registrado en asistencia, consultar con el asistente más cercano");</script>';
     }
 }
+
 ?>
 
+<!DOCTYPE html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Votaciones</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css">
+
   <style>
     body {
       background: linear-gradient(to right, #d4edda, #a8df8e);
@@ -105,34 +81,70 @@ if ($ccSocio != null) {
       font-size: 1rem;
       padding: 10px;
       transition: background 0.3s ease;
+      color: white;
     }
     .btn-custom:hover {
       background-color: #218838;
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .grid-item {
+      background: #e9f5e9;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .grid-item label {
+      font-weight: bold;
     }
     .footer {
       background-color: #28a745;
       color: white;
       padding: 15px;
-      border-radius: 10px;
       text-align: center;
       margin-top: auto;
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      left: 0;
     }
-    /* Estilos de impresión */
-    @media print {
-      body {
-        background: none;
-        color: #000;
-      }
-      .container-form {
-        padding: 0;
-        border: none;
-        box-shadow: none;
-      }
+    .btn-back {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 1rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    .btn-back i {
+      font-size: 1.2rem;
+    }
+    .btn-back:hover {
+      background-color: #218838;
     }
   </style>
 </head>
-
 <body>
+
+  <!-- Botón Volver -->
+  <a href="admin.php" class="btn-back">
+    <i class="bi bi-arrow-left"></i> Volver
+  </a>
+
   <div class="container-form">
     <h2 class="text-center text-success">Votación</h2>
     
@@ -148,8 +160,8 @@ if ($ccSocio != null) {
 
           while ($row = mysqli_fetch_array($ejecucionCandidatos)) {
             echo '<div class="grid-item">
-                    <label>' . $row['nombre'] . '</label><br> 
-                    <input type="radio" name="plancha" value="' . $row['id'] . '" required>
+                    <label>' . $row['Nombre'] . '</label><br> 
+                    <input type="radio" name="plancha" value="' . $row['ID'] . '" required>
                   </div>';
           }
         ?>
@@ -175,5 +187,4 @@ if ($ccSocio != null) {
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>

@@ -6,6 +6,7 @@ include 'db-conexion.php';
   <meta charset="UTF-8">
   <title>Votaciones</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css">
 
   <style>
     body {
@@ -37,26 +38,7 @@ include 'db-conexion.php';
       text-align: center;
       margin-top: auto;
     }
-
-    /* Estilos de impresión */
-    @media print {
-      body {
-        background: none;
-      }
-      .footer, .container-results {
-        margin: 0;
-        padding: 0;
-        border: none;
-        box-shadow: none;
-      }
-      .table {
-        border: 1px solid #ccc;
-        margin-top: 20px;
-      }
-    }
-
-    /* Estilo personalizado para el botón de impresión */
-    .btn-print {
+    .btn-custom {
       background-color: #28a745;
       border: none;
       border-radius: 10px;
@@ -65,13 +47,55 @@ include 'db-conexion.php';
       transition: background-color 0.3s ease;
       color: white;
     }
-
-    .btn-print:hover {
+    .btn-custom:hover {
       background-color: #218838;
+    }
+    /* Botón Volver */
+    .btn-back {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 1rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    .btn-back i {
+      font-size: 1.2rem;
+    }
+    .btn-back:hover {
+      background-color: #218838;
+    }
+
+    /* Estilos de impresión */
+    @media print {
+      body {
+        background: none;
+      }
+      .footer, .container-results, .btn-back {
+        display: none;
+      }
+      .table {
+        border: 1px solid #ccc;
+        margin-top: 20px;
+      }
     }
   </style>
 </head>
 <body>
+
+  <!-- Botón Volver -->
+  <a href="admin.php" class="btn-back">
+    <i class="bi bi-arrow-left"></i> Volver
+  </a>
 
   <div class="container-results">
     <h2 class="text-success">Resultados de la Votación</h2>
@@ -109,8 +133,8 @@ include 'db-conexion.php';
       </tbody>
     </table>
 
-    <!-- Botón de impresión con la misma estética -->
-    <button class="btn btn-print mt-3" onclick="printResults()">Imprimir Resultados</button>
+    <!-- Botón de impresión -->
+    <button class="btn btn-custom mt-3" onclick="printResults()">Imprimir Resultados</button>
   </div>
 
   <footer class="footer">
@@ -121,10 +145,7 @@ include 'db-conexion.php';
     const date = new Date();
     document.getElementById("current_date").innerText = `Fecha: ${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
 
-    // Función de impresión
     function printResults() {
-      
-      
       window.print();
     }
   </script>

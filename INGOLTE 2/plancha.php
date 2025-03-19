@@ -1,39 +1,35 @@
 <?php
 include 'db-conexion.php';
 
-
 $plancha = $_POST['plancha'] ?? null;
 
-
-if ($plancha != null or $plancha != '') {
+if ($plancha != null && $plancha != '') {
   $sqlPlancha = "INSERT INTO plancha (Nombre) VALUES ('$plancha')";
-
   $ejecutar = mysqli_query($conexion, $sqlPlancha);
 
   if (!$ejecutar) {
     echo "Hubo un error";
-
   } else {
     echo '<script>
-    alert("Se registro la pagina con exito");
+    alert("Se registró la plancha con éxito");
     </script>';
-
   }
 }
-
 ?>
 
 <head>
   <meta charset="UTF-8">
-  <title> VOTACIONES </title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
+  <title>VOTACIONES</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+  
   <style>
     body {
       background: linear-gradient(to right, #d4edda, #a8df8e);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      position: relative;
     }
     .container-form {
       background: #fff;
@@ -71,9 +67,34 @@ if ($plancha != null or $plancha != '') {
       text-align: center;
       margin-top: auto;
     }
+    .btn-volver {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 15px;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .btn-volver:hover {
+      background-color: #218838;
+    }
   </style>
 </head>
 <body>
+
+  <form action="admin.php">
+    <button type="submit" class="btn-volver">
+      <i class="bi bi-arrow-left"></i> Volver
+    </button>
+  </form>
 
   <div class="container-form">
     <h2 class="text-center text-success">Registro de Candidatos</h2>
