@@ -3,53 +3,62 @@ include 'db-conexion.php';
 
 $ccSocio = $_POST['ccSocio'] ?? null;
 $Apoderado = $_POST['ccApoderado'] ?? null;
-$nm = $_POST['nm'] ?? null;
+$nm = $_POST['nmApoderado'] ?? null;
 $cantidadAccionesApoderado = 0;
 $accionesPermiso = 0;
 $fecha = $_POST['fecha'] ?? null;
 
 if ($ccSocio != null) {
-    $sqlApoderadoPermitido = "SELECT sum(Acciones) AS permiso FROM base WHERE Apoderado='$Apoderado'";
-    $permiso = mysqli_query($conexion, $sqlApoderadoPermitido);
+  $sqlApoderadoPermitido = "SELECT sum(Acciones) AS permiso FROM base WHERE Apoderado='$Apoderado'";
+  $permiso = mysqli_query($conexion, $sqlApoderadoPermitido);
 
-    $sqlAlerta = "SELECT Nombre, Acciones FROM base WHERE Cedula='$ccSocio'";
-    $alerta = mysqli_query($conexion, $sqlAlerta);
+  $sqlAlerta = "SELECT Nombre, Acciones FROM base WHERE Cedula='$ccSocio'";
+  $alerta = mysqli_query($conexion, $sqlAlerta);
 
-    if ($row1 = $alerta->fetch_assoc()) {
-        $name = $row1['Nombre'];
-        $accionescant = $row1['Acciones'];
+  if ($row1 = $alerta->fetch_assoc()) {
+    $name = $row1['Nombre'];
+    $accionescant = $row1['Acciones'];
 
-        if ($row2 = $permiso->fetch_assoc()) {
-            $accionesPermiso = intval($row2['permiso']) + intval($accionescant);
+    if ($row2 = $permiso->fetch_assoc()) {
+      $accionesPermiso = intval($row2['permiso']) + intval($accionescant);
 
-            if ($accionesPermiso < 250) {
-                $nm = strtoupper($nm);
+      if ($accionesPermiso < 250) {
+        $nm = strtoupper($nm);
 
-                $sqlSocio = "UPDATE base SET Poder = 1, Apoderado='$Apoderado', nmApoderado='$nm' WHERE Cedula='$ccSocio'";
-                $ejecutar = mysqli_query($conexion, $sqlSocio);
+        $sqlSocio = "UPDATE base SET Poder = 1, Apoderado='$Apoderado', nmApoderado='$nm' WHERE Cedula='$ccSocio'";
+        $ejecutar = mysqli_query($conexion, $sqlSocio);
 
-                if (!$ejecutar) {
-                    echo '<script>alert("NO SE ENCONTRO AL ACCIONISTA EN LA BASE DE DATOS");</script>';
-                } else {
-                    $sqlPoder = "INSERT INTO poderes (ccAccionista, nmAccionista, ccApoderado, nmApoderado, nAcciones, fecha) 
-                                 VALUES ($ccSocio, '$name', $Apoderado, '$nm', $accionescant, '$fecha')";
-
-                    $queryPoderes = mysqli_query($conexion, $sqlPoder);
-
-                    echo '<script>alert("EL ACCIONISTA  ' . $name . '  DIO UN PODER DE  ' . $accionescant . '  ACCIONES AL APODERADO  ' . $nm . '");</script>';
-                }
-            } else {
-                echo '<script>alert("EL APODERADO SUPERARIA EL MAXIMO DE 250 ACCIONES '.$accionesPermiso.'");</script>';
-            }
+        if (!$ejecutar) {
+          echo '<script>
+          alert("NO SE ENCONTRO AL ACCIONISTA EN LA BASE DE DATOS");
+          </script>';
         } else {
-            echo '<script>alert("ERROR INESPERADO CON LA BASE DE DATOS");</script>';
+          $sqlPoder = "INSERT INTO poderes (ccAccionista, nmAccionista, ccApoderado, nmApoderado, nAcciones, fecha) 
+                        VALUES($ccSocio, '$name', $Apoderado, '$nm', $accionescant, '$fecha')";
+
+          $queryPoderes = mysqli_query($conexion, $sqlPoder);
+
+          echo '<script>
+          alert("EL ACCIONISTA ' . $name . ' DIO UN PODER DE ' . $accionescant . ' ACCIONES AL APODERADO ' . $nm . '");
+          </script>';
         }
+      } else {
+        echo '<script>
+        alert("EL APODERADO SUPERARIA EL MAXIMO DE 250 ACCIONES ' . $accionesPermiso . '");
+        </script>';
+      }
     } else {
-        echo '<script>alert("NO SE ENCONTRO SOCIO CON ESA CEDULA");</script>';
+      echo '<script>
+      alert("ERROR INESPERADO CON LA BASE DE DATOS");
+      </script>';
     }
+  } else {
+    echo '<script>
+    alert("NO SE ENCONTRO SOCIO CON ESA CEDULA");
+    </script>';
+  }
 }
 ?>
-
 <head>
     <meta charset="UTF-8">
     <title>VOTACIONES</title>
@@ -143,6 +152,9 @@ if ($ccSocio != null) {
                 <input type="text" name="ccApoderado" class="form-control" placeholder="Cédula Apoderado" required />
             </div>
             <div class="mb-3">
+        <input type="text" name="nmApoderado" class="form-control" placeholder="Nombre del Apoderado" required />
+      </div>
+            <div class="mb-3">
                 <input type="date" name="fecha" class="form-control" value="2023-10-31" min="2023-10-01" max="2023-11-01" />
             </div>
             <button type="submit" class="btn btn-custom w-100">Confirmar</button>
@@ -172,5 +184,36 @@ if ($ccSocio != null) {
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const cedulaApoderadoInput = document.querySelector("input[name='ccApoderado']");
+      const nombreApoderadoInput = document.querySelector("input[name='nmApoderado']");
+
+      cedulaApoderadoInput.addEventListener("blur", function () {
+  const cedula = cedulaApoderadoInput.value;
+  console.log("Cédula ingresada: " + cedula); // Verifica en la consola
+
+  if (cedula) {
+    fetch('obtener_nombre_apoderado.php?cedula=' + cedula)
+      .then(response => response.json())  // Convierte la respuesta a JSON
+      .then(data => {
+        console.log(data);  // Verifica qué datos estás recibiendo
+
+        if (data.success) {
+          nombreApoderadoInput.value = data.nombre;
+        } else {
+          nombreApoderadoInput.value = '';
+          alert("No se encontró el apoderado con esa cédula.");
+        }
+      })
+      .catch(error => {
+        console.error('Error al buscar el apoderado:', error);
+        alert('Hubo un problema al obtener los datos del apoderado.');
+      });
+  }
+});
+    });
+  </script>
 </body>
 </html>
