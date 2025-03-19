@@ -1,13 +1,10 @@
 <?php
-
 include 'db-conexion.php';
-
 ?>
-
 
 <head>
   <meta charset="UTF-8">
-  <title> VOTACIONES </title>
+  <title>Votaciones</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
   <style>
@@ -40,6 +37,38 @@ include 'db-conexion.php';
       text-align: center;
       margin-top: auto;
     }
+
+    /* Estilos de impresión */
+    @media print {
+      body {
+        background: none;
+      }
+      .footer, .container-results {
+        margin: 0;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+      }
+      .table {
+        border: 1px solid #ccc;
+        margin-top: 20px;
+      }
+    }
+
+    /* Estilo personalizado para el botón de impresión */
+    .btn-print {
+      background-color: #28a745;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 1.1rem;
+      transition: background-color 0.3s ease;
+      color: white;
+    }
+
+    .btn-print:hover {
+      background-color: #218838;
+    }
   </style>
 </head>
 <body>
@@ -64,10 +93,10 @@ include 'db-conexion.php';
           if ($ejecucionCandidatos) {
             while ($row = mysqli_fetch_array($ejecucionCandidatos)) {
               echo "<tr>
-                      <td>" . $row['Nombre'] . "</td>
-                      <td>" . number_format($row['TotalAcciones']) . "</td>
+                      <td>" . $row['nombre'] . "</td>
+                      <td>" . number_format($row['totalAcciones']) . "</td>
                     </tr>";
-              $totales += intval($row['TotalAcciones']);
+              $totales += intval($row['totalAcciones']);
             }
             echo "<tr class='table-secondary'>
                     <td><strong>Total de Votos</strong></td>
@@ -79,6 +108,9 @@ include 'db-conexion.php';
         ?>
       </tbody>
     </table>
+
+    <!-- Botón de impresión con la misma estética -->
+    <button class="btn btn-print mt-3" onclick="printResults()">Imprimir Resultados</button>
   </div>
 
   <footer class="footer">
@@ -88,61 +120,14 @@ include 'db-conexion.php';
   <script>
     const date = new Date();
     document.getElementById("current_date").innerText = `Fecha: ${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+
+    // Función de impresión
+    function printResults() {
+      
+      
+      window.print();
+    }
   </script>
 
 </body>
 </html>
-<!--</head>
-
-<body>
-  <header>
-    <nav>
-      <ul>
-
-
-
-      </ul>
-    </nav>
-
-  </header>
-  <br>
-  <div class="resultados">
-    <div id="current_date">
-      <h1>
-        <script>
-          date = new Date();
-          year = date.getFullYear();
-          month = date.getMonth() + 1;
-          day = date.getDate();
-          document.getElementById("current_date").innerHTML = "RESULTADOS  ";
-        </script>
-      </h1>
-    </div>
-
-    <?php
-    
-    /*$sqlcandidatos = "SELECT * FROM plancha WHERE TotalAcciones > 0 ORDER BY TotalAcciones DESC ";
-    $ejecucionCandidatos = mysqli_query($conexion, $sqlcandidatos);
-    $totales=0;
-  
-    if ($ejecucionCandidatos) {
-      while ($row = mysqli_fetch_array($ejecucionCandidatos)) {
-
-        echo ' <h5>' . $row['Nombre'] . '&emsp;&emsp; TOTAL : '.number_format($row['TotalAcciones']).' </h5> ';
-        $totales+= intval($row['TotalAcciones']);
-      }
-
-      echo ' <h5> VOTOS TOTALES&emsp; : &emsp;' .number_format($totales).' </h5> ';
-
-    } else {
-
-      echo '<h2> TODAVIA NO SE PUEDEN PRESENTAN RESULTADOS </h2>';
-    }*/
-
-
-    ?>
-
-
-  </div>
-</body>
--->

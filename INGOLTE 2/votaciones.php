@@ -1,92 +1,79 @@
 <?php
-
 include 'db-conexion.php';
 
 $ccSocio = $_POST['ccSocio'] ?? null;
 $plancha = $_POST['plancha'] ?? null;
-
-$votantesActuales=0;
-
-
-
+$votantesActuales = 0;
 
 if ($ccSocio != null) {
+    $sqlestaAsistencia = "SELECT Nombre, Voto, Acciones FROM asistencia WHERE Cedula = '$ccSocio'";
+    $comprobadorAsistencia = mysqli_query($conexion, $sqlestaAsistencia);
 
-  $sqlestaAsistencia = "SELECT Nombre, Voto, Acciones FROM asistencia Where Cedula = '$ccSocio'";
-  $comprobadorAsistencia = mysqli_query($conexion, $sqlestaAsistencia);
+    if ($row = $comprobadorAsistencia->fetch_assoc()) {
+        $comprobador = $row['Nombre'];
+        $voto = $row['Voto'];
+        $cantAcciones = $row['Acciones'];
 
+        if ($voto == 0 && $cantAcciones != 0) {
+            $sqlVotacion = "INSERT INTO votaciones (Cedula, Nombre, Plancha, Acciones) VALUES ('$ccSocio', '$comprobador', '$plancha', '$cantAcciones')";
+            $Ejecutar2 = mysqli_query($conexion, $sqlVotacion);
 
-  if ($row = $comprobadorAsistencia->fetch_assoc()) {
-    $comprobador = $row['Nombre'];
-    $voto = $row['Voto'];
-    $cantAcciones = $row['Acciones'];
+            if (!$Ejecutar2) {
+                echo '<script>
+                    alert("Error inesperado, contactar con tecnico");
+                    </script>';
+            } else {
+                $sqlSiVoto = "UPDATE asistencia SET Voto = 1 WHERE Cedula='$ccSocio'";
+                $Ejecutar1 = mysqli_query($conexion, $sqlSiVoto);
 
-    if ($voto == 0 && $cantAcciones != 0) {
+                if (!$Ejecutar1) {
+                } else {
+                    $sqlcalcularVotacion = "UPDATE plancha SET TotalAcciones = TotalAcciones + $cantAcciones WHERE ID = '$plancha'";
+                    $ejecutar3 = mysqli_query($conexion, $sqlcalcularVotacion);
 
+                    if (!$ejecutar3) {
+                        echo '<script>
+                            alert("Inconveniente al registrar su voto, avise al encargado mas cercano");
+                            </script>';
+                    } else {
+                        // Mostrar la información del voto y preparar la impresión
+                        $sqlPlanchaInfo = "SELECT Nombre FROM plancha WHERE ID = '$plancha'";
+                        $resultadoPlancha = mysqli_query($conexion, $sqlPlanchaInfo);
+                        $planchaNombre = '';
+                        if ($rowPlancha = mysqli_fetch_assoc($resultadoPlancha)) {
+                            $planchaNombre = $rowPlancha['Nombre'];
+                        }
 
-      $sqlVotacion = "INSERT INTO votaciones (Cedula,Nombre,Plancha,Acciones) VALUES ('$ccSocio','$comprobador','$plancha','$cantAcciones')";
-      $Ejecutar2 = mysqli_query($conexion, $sqlVotacion);
-
-      if (!$Ejecutar2) {
-
-        echo '<script>
-        alert("Error inesperado, contactar con tecnico");
-        </script>';
-
-      } else {
-
-        $sqlSiVoto = "UPDATE asistencia SET Voto = 1 WHERE Cedula='$ccSocio'";
-        $Ejecutar1 = mysqli_query($conexion, $sqlSiVoto);
-
-        if (!$Ejecutar1) {
-
+                        echo '<script>
+                        alert("Su voto ha sido registrado con éxito. Usted votó por: ' . $planchaNombre . ' con ' . $cantAcciones . ' acciones.");
+                        window.onload = function() {
+                          var printContents = "<h2>Detalles del Voto</h2><p><strong>Fecha:</strong> " + new Date().toLocaleDateString() + "</p><p><strong>Plancha:</strong> ' . $planchaNombre . '</p><p><strong>Acciones:</strong> ' . $cantAcciones . '</p>";
+                          var originalContents = document.body.innerHTML;
+                          document.body.innerHTML = printContents;
+                          window.print();
+                          document.body.innerHTML = originalContents;
+                        };
+                        </script>';
+                    }
+                }
+            }
         } else {
-          $sqlcalcularVotacion = "UPDATE plancha SET TotalAcciones= TotalAcciones + $cantAcciones WHERE ID ='$plancha'";
-          echo '<script>
-          alert("ACCIONES  : ' . $cantAcciones . '");
-          </script>';
-          $ejecutar3 = mysqli_query($conexion, $sqlcalcularVotacion);
-
-          if (!$ejecutar3) {
             echo '<script>
-            alert("Inconveniente al registrar su voto, avise al encargado mas cercano");
+            alert("El Accionista ya votó o está imposibilitado para votar");
             </script>';
-
-          } else {
-
-            echo '<script>
-            alert("Su voto ha sido registrado");
-            </script>';
-          }
         }
-
-
-      }
-
-
     } else {
-
-      echo '<script>
-      alert("El Accionista ya voto o esta imposibilitado para votar");
-      </script>';
+        echo '<script>
+        alert("El Accionista puede no estar registrado en Asistencia, Consultar con el asistente más cercano");
+        </script>';
     }
-
-  } else {
-
-    echo '<script>
-    alert("El Accionista puede no estar registrado en Asistencia, Consultar con el asistente mas cercano");
-    </script>';
-  }
 }
-
-
 ?>
 
 <head>
   <meta charset="UTF-8">
-  <title> VOTACIONES </title>
+  <title>Votaciones</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
   <style>
     body {
       background: linear-gradient(to right, #d4edda, #a8df8e);
@@ -122,22 +109,6 @@ if ($ccSocio != null) {
     .btn-custom:hover {
       background-color: #218838;
     }
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 15px;
-      margin-top: 15px;
-    }
-    .grid-item {
-      background: #e9f5e9;
-      padding: 15px;
-      border-radius: 10px;
-      text-align: center;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-    .grid-item label {
-      font-weight: bold;
-    }
     .footer {
       background-color: #28a745;
       color: white;
@@ -146,10 +117,22 @@ if ($ccSocio != null) {
       text-align: center;
       margin-top: auto;
     }
+    /* Estilos de impresión */
+    @media print {
+      body {
+        background: none;
+        color: #000;
+      }
+      .container-form {
+        padding: 0;
+        border: none;
+        box-shadow: none;
+      }
+    }
   </style>
 </head>
-<body>
 
+<body>
   <div class="container-form">
     <h2 class="text-center text-success">Votación</h2>
     
@@ -165,8 +148,8 @@ if ($ccSocio != null) {
 
           while ($row = mysqli_fetch_array($ejecucionCandidatos)) {
             echo '<div class="grid-item">
-                    <label>' . $row['Nombre'] . '</label><br> 
-                    <input type="radio" name="plancha" value="' . $row['ID'] . '" required>
+                    <label>' . $row['nombre'] . '</label><br> 
+                    <input type="radio" name="plancha" value="' . $row['id'] . '" required>
                   </div>';
           }
         ?>
@@ -192,4 +175,5 @@ if ($ccSocio != null) {
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

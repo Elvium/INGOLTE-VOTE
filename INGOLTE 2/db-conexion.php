@@ -2,7 +2,7 @@
 $usuario = "root";
 $password = "";
 $servidor = "localhost";
-$basededatos = "ingolte";
+$basededatos = "voteingolte";
 
 
 $conexion = mysqli_connect($servidor, $usuario,$password) or die("Error con el servidor de la base de datos");
