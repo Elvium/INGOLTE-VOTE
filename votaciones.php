@@ -1,10 +1,8 @@
 <?php
-
 include 'db-conexion.php';
 
 $ccSocio = $_POST['ccSocio'] ?? null;
 $plancha = $_POST['plancha'] ?? null;
-
 $votantesActuales = 0;
 
 if ($ccSocio != null) {
@@ -17,13 +15,16 @@ if ($ccSocio != null) {
         $cantAcciones = $row['Acciones'];
 
         if ($voto == 0 && $cantAcciones != 0) {
+            // Aquí insertamos la votación
             $sqlVotacion = "INSERT INTO votaciones (Cedula, Nombre, Plancha, Acciones) VALUES ('$ccSocio', '$comprobador', '$plancha', '$cantAcciones')";
             $Ejecutar2 = mysqli_query($conexion, $sqlVotacion);
 
             if ($Ejecutar2) {
+                // Actualizamos que el votante ya votó
                 $sqlSiVoto = "UPDATE asistencia SET Voto = 1 WHERE Cedula='$ccSocio'";
                 mysqli_query($conexion, $sqlSiVoto);
 
+                // Actualizamos las acciones de la plancha
                 $sqlcalcularVotacion = "UPDATE plancha SET TotalAcciones = TotalAcciones + $cantAcciones WHERE ID ='$plancha'";
                 mysqli_query($conexion, $sqlcalcularVotacion);
 
@@ -51,6 +52,7 @@ if ($ccSocio != null) {
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css">
 
   <style>
+    /* Tu CSS sigue igual */
     body {
       background: linear-gradient(to right, #d4edda, #a8df8e);
       min-height: 100vh;
@@ -148,7 +150,7 @@ if ($ccSocio != null) {
   <div class="container-form">
     <h2 class="text-center text-success">Votación</h2>
     
-    <form method="post">
+    <form method="post" id="formVotacion">
       <div class="mb-3">
         <input type="text" name="ccSocio" class="form-control" placeholder="Cédula del Votante" required />
       </div>
@@ -160,8 +162,8 @@ if ($ccSocio != null) {
 
           while ($row = mysqli_fetch_array($ejecucionCandidatos)) {
             echo '<div class="grid-item">
-                    <label>' . $row['Nombre'] . '</label><br> 
-                    <input type="radio" name="plancha" value="' . $row['ID'] . '" required>
+                    <label>' . $row['nombre'] . '</label><br> 
+                    <input type="radio" name="plancha" value="' . $row['id'] . '" required>
                   </div>';
           }
         ?>
@@ -186,5 +188,54 @@ if ($ccSocio != null) {
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Función para manejar la impresión y redirección
+    document.getElementById('formVotacion').addEventListener('submit', function(event) {
+      event.preventDefault(); // Evitar que el formulario se envíe de inmediato
+
+      // Recoger la cédula, plancha y acciones para mostrar el ticket
+      const ccSocio = document.querySelector('input[name="ccSocio"]').value;
+      const plancha = document.querySelector('input[name="plancha"]:checked').value;
+
+      // Realizar una solicitud AJAX para obtener los detalles del voto
+      fetch('obtener_detalles_voto.php', {
+        method: 'POST',
+        body: new URLSearchParams({
+          ccSocio: ccSocio,
+          plancha: plancha
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Mostrar el ticket con el nombre de la plancha y las acciones
+          const ticket = `
+            <div style="border: 1px solid #000; padding: 20px; text-align: center; font-size: 16px; width: 200px; margin: auto;">
+              <strong>Plancha: ${data.plancha}</strong><br>
+              <strong>Acciones: ${data.cantAcciones}</strong>
+            </div>
+          `;
+          const printWindow = window.open('', '_blank', 'width=300,height=200');
+          printWindow.document.write(ticket);
+          printWindow.document.close();
+          
+          // Esperar a que el usuario termine de imprimir y luego redirigir
+          printWindow.print();
+
+          // Redirigir a la página de votaciones después de un breve delay
+          setTimeout(function() {
+            window.location.href = 'votaciones.php';
+          }, 2000); // Espera 2 segundos antes de redirigir
+        } else {
+          alert('Hubo un error al obtener los detalles del voto.');
+        }
+      })
+      .catch(error => {
+        alert('Error al realizar la solicitud: ' + error);
+      });
+    });
+  </script>
+
 </body>
 </html>
