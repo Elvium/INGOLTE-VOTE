@@ -7,59 +7,86 @@ $accion = 0;
 $acciones = 0;
 
 if ($ccAsistencia != null) {
-    $sqlSociodioPoder = "SELECT Cedula,Nombre, Apoderado, Acciones FROM base WHERE Poder = 1 and CEDULA ='$ccAsistencia'";
-    $consultaSocioApoderado = mysqli_query($conexion, $sqlSociodioPoder);
+    // Verifica si la persona ya está registrada en la tabla de asistencia
+    $sqlVerificarAsistencia = "SELECT * FROM asistencia WHERE Cedula = '$ccAsistencia'";
+    $consultaVerificar = mysqli_query($conexion, $sqlVerificarAsistencia);
 
-    if ($row = $consultaSocioApoderado->fetch_assoc()) {
-        $cc = $row['Cedula'];
-        $nombreAsistente = $row['Nombre'];
-        $Apoderado = $row['Apoderado'];
-        $acc = $row['Acciones'];
-
-        if (!empty($cc)) {
-            $sqlactualizarSocio = "UPDATE base SET Poder = 0, Apoderado= NULL, nmApoderado=NULL  WHERE Cedula='$cc'";
-            $ejecutar1 = mysqli_query($conexion, $sqlactualizarSocio);
-            $sqlactualizarAsistencia = "UPDATE asistencia SET Acciones = Acciones - $acc  WHERE Cedula='$Apoderado'";
-            $ejecutar2 = mysqli_query($conexion, $sqlactualizarAsistencia);
-        }
-    }
-
-    $sqlBusquedaAccionesApoderado = "SELECT SUM(Acciones) as total, nmApoderado as nm FROM base WHERE Apoderado= '$ccAsistencia'";
-    $consulta1 = mysqli_query($conexion, $sqlBusquedaAccionesApoderado);
-
-    if ($row = $consulta1->fetch_assoc()) {
-        $acciones = $row['total'];
-        $nombreAsistente = $row['nm'];
-    }
-
-    $sqlBusquedaAccionesSocio = "SELECT Acciones , Nombre FROM base WHERE Cedula = '$ccAsistencia'";
-    $consulta2 = mysqli_query($conexion, $sqlBusquedaAccionesSocio);
-
-    if ($row = $consulta2->fetch_assoc()) {
-        $acciones += $row['Acciones'];
-        $nombreAsistente = $row['Nombre'];
-    }
-
-    if ($acciones != 0) {
-        $sqlAsistencia = "INSERT INTO asistencia (Cedula,Nombre,Acciones) VALUES ($ccAsistencia,'$nombreAsistente',$acciones)";
-        $ejecutar = mysqli_query($conexion, $sqlAsistencia);
-
-        if (!$ejecutar) {
-            echo '<script>alert("ERROR INESPERADO");</script>';
-        } else {
-            echo '<script>alert("BIENVENIDO A LAS VOTACIONES ' . $nombreAsistente . '");</script>';
-        }
+    // Si ya está registrada, muestra un mensaje y no realiza la inserción
+    if (mysqli_num_rows($consultaVerificar) > 0) {
+        echo '<script>alert("La persona ya está registrada en las votaciones.");</script>';
     } else {
-        echo '<script>alert("ESTE ACCIONISTA NO CUENTA CON ACCIONES");</script>';
+        
+        $sqlSociodioPoder = "SELECT Cedula,Nombre, Apoderado, Acciones FROM base WHERE Poder = 1 and Cedula ='$ccAsistencia'";
+        $consultaSocioApoderado = mysqli_query($conexion, $sqlSociodioPoder);
+
+        // Se revisa si el socio ha dado el poder pero decidió asistir a las votaciones
+        if ($row = $consultaSocioApoderado->fetch_assoc()) {
+            $cc = $row['Cedula'];
+            $nombreAsistente = $row['Nombre'];
+            $Apoderado = $row['Apoderado'];
+            $acc = $row['Acciones'];
+
+            if (!empty($cc)) {
+                // Verifica si el apoderado ya votó
+                $sqlVerificarVotoApoderado = "SELECT * FROM asistencia WHERE Cedula = '$Apoderado'";
+                $consultaVotoApoderado = mysqli_query($conexion, $sqlVerificarVotoApoderado);
+
+                if (mysqli_num_rows($consultaVotoApoderado) > 0) {
+                    // Si el apoderado ya votó, no restamos sus acciones
+                    echo '<script>alert("El apoderado ya ha votado, por lo tanto, se registrará con las acciones disponibles.");</script>';
+                } else {
+                    // Si el apoderado no ha votado, le quitamos las acciones
+                    $sqlactualizarAsistencia = "UPDATE asistencia SET Acciones = Acciones - $acc  WHERE Cedula='$Apoderado'";
+                    $ejecutar2 = mysqli_query($conexion, $sqlactualizarAsistencia);
+                }
+
+                // Actualizamos el poder del socio
+                $sqlactualizarSocio = "UPDATE base SET Poder = 0, Apoderado= NULL, nmApoderado=NULL  WHERE Cedula='$cc'";
+                $ejecutar1 = mysqli_query($conexion, $sqlactualizarSocio);
+            }
+        }
+
+        // Busca las acciones de la persona que se registra como apoderado
+        $sqlBusquedaAccionesApoderado = "SELECT SUM(Acciones) as total, nmApoderado as nm FROM base WHERE Apoderado= '$ccAsistencia'";
+        $consulta1 = mysqli_query($conexion, $sqlBusquedaAccionesApoderado);
+
+        if ($row = $consulta1->fetch_assoc()) {
+            $acciones = $row['total'];
+            $nombreAsistente = $row['nm'];
+        }
+
+        // Busca las acciones de la persona que se registra y es socio y las suma a las anteriores si tiene
+        $sqlBusquedaAccionesSocio = "SELECT Acciones , Nombre FROM base WHERE Cedula = '$ccAsistencia'";
+        $consulta2 = mysqli_query($conexion, $sqlBusquedaAccionesSocio);
+
+        if ($row = $consulta2->fetch_assoc()) {
+            $acciones += $row['Acciones'];
+            $nombreAsistente = $row['Nombre'];
+        }
+
+        // Si tiene acciones, registra a la persona en la tabla de asistencia
+        if ($acciones != 0) {
+            $sqlAsistencia = "INSERT INTO asistencia (Cedula,Nombre,Acciones) VALUES ('$ccAsistencia','$nombreAsistente',$acciones)";
+            $ejecutar = mysqli_query($conexion, $sqlAsistencia);
+
+            if (!$ejecutar) {
+                echo '<script>alert("error inesperado");</script>';
+            } else {
+                echo '<script>alert("Bienvenido a las votaciones ' . $nombreAsistente . '");</script>';
+            }
+        } else {
+            echo '<script>alert("Este accionista no cuenta con acciones");</script>';
+        }
     }
+
 } elseif ($ccConsulta != null) {
     $sqlConsultaAcciones = "SELECT Nombre , Acciones FROM asistencia WHERE Cedula='$ccConsulta'";
     $accionesActuales = mysqli_query($conexion, $sqlConsultaAcciones);
 
     if ($row = $accionesActuales->fetch_assoc()) {
-        echo '<script>alert("LA CANTIDAD DE ACCIONES DE '.$row['Nombre'].'  SON '.$row['Acciones'].'");</script>';
+        echo '<script>alert("La cantidad de acciones de ' . $row['Nombre'] . '  son ' . $row['Acciones'] . '");</script>';
     } else {
-        echo '<script>alert("EL SOCIO NO SE ENCUENTRA REGISTRADO EN ASISTENCIA");</script>';
+        echo '<script>alert("El socio no se encuentra registrado a las votaciones");</script>';
     }
 }
 ?>
@@ -78,6 +105,7 @@ if ($ccAsistencia != null) {
             flex-direction: column;
             position: relative;
         }
+
         .container-form {
             background: #fff;
             padding: 25px;
@@ -87,14 +115,17 @@ if ($ccAsistencia != null) {
             max-width: 400px;
             margin: auto;
         }
+
         .form-control {
             border-radius: 10px;
             border: 1px solid #a8df8e;
         }
+
         .form-control:focus {
             border-color: #28a745;
             box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
         }
+
         .btn-custom {
             background-color: #28a745;
             border: none;
@@ -103,9 +134,11 @@ if ($ccAsistencia != null) {
             padding: 10px;
             transition: background 0.3s ease;
         }
+
         .btn-custom:hover {
             background-color: #218838;
         }
+
         .footer {
             background-color: #28a745;
             color: white;
@@ -114,6 +147,7 @@ if ($ccAsistencia != null) {
             text-align: center;
             margin-top: auto;
         }
+
         /* Estilo para el botón de volver */
         .btn-volver {
             position: absolute;
@@ -131,11 +165,13 @@ if ($ccAsistencia != null) {
             align-items: center;
             gap: 5px;
         }
+
         .btn-volver:hover {
             background-color: #218838;
         }
     </style>
 </head>
+
 <body>
 
     <!-- Botón de Volver -->
@@ -185,4 +221,5 @@ if ($ccAsistencia != null) {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

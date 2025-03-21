@@ -155,7 +155,7 @@ if ($ccSocio != null) {
         <input type="text" name="nmApoderado" class="form-control" placeholder="Nombre del Apoderado" required />
       </div>
             <div class="mb-3">
-                <input type="date" name="fecha" class="form-control" value="2023-10-31" min="2023-10-01" max="2023-11-01" />
+                <input type="date" name="fecha" class="form-control" value="2025-04-15" min="2025-01-01" max="2025-04-30" />
             </div>
             <button type="submit" class="btn btn-custom w-100">Confirmar</button>
         </form>

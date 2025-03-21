@@ -166,26 +166,28 @@ if ($row = mysqli_fetch_array($ejectvota)) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Mostrar el ticket con el nombre de la plancha y las acciones
-                    const ticket = `
-                        <div style="border: 1px solid #000; padding: 20px; text-align: center; font-size: 16px; width: 200px; margin: auto;">
-                            <strong>Plancha: ${data.plancha}</strong><br>
-                            <strong>Acciones: ${data.cantAcciones}</strong>
-                        </div>
-                    `;
-                    const printWindow = window.open('', '_blank', 'width=300,height=200');
-                    printWindow.document.write(ticket);
-                    printWindow.document.close();
-                    
-                    printWindow.print();
+    // Crear contenido de la impresión del ticket con la clase 'ticket'
+    const ticket = `
+        <div class="ticket">
+            <h3>Votación Confirmada</h3>
+            <p><strong>Plancha:</strong> ${data.plancha}</p>
+            <p><strong>Acciones:</strong> ${data.cantAcciones}</p>
+        </div>
+    `;
+    const printWindow = window.open('', '_blank', 'width=300,height=300');
+    printWindow.document.write(ticket);
+    printWindow.document.close();
+    
+    printWindow.print();
 
-                    setTimeout(function() {
-                        window.location.href = 'votaciones.php';
-                    }, 2000); // Espera 2 segundos antes de redirigir
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            })
+    setTimeout(function() {
+        window.location.href = 'votaciones.php';
+    }, 2000); // Espera 2 segundos antes de redirigir
+} else {
+    alert('Error: ' + data.message);
+}
+})
+
             .catch(error => {
                 alert('Error al realizar la solicitud: ' + error);
             });
