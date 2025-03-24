@@ -1,5 +1,5 @@
 <?php
-include 'db-conexion.php';
+include './logica/db-conexion.php';
 
 $ccSocio = $_POST['ccSocio'] ?? null;
 $Apoderado = $_POST['ccApoderado'] ?? null;

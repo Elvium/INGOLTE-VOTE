@@ -1,10 +1,14 @@
+<?php
+include './logica/configSesion.php';
+session_start();
+$usuario = $_SESSION['usuario'];
+?>
 
 <head>
   <meta charset="UTF-8">
   <title> VOTACIONES </title>
   
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <style>
@@ -32,9 +36,32 @@
       background-color: #218838;
       border-radius: 5px;
     }
-  </style>
-</head>
+    .logout-container {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+    .logout-btn {
+      background-color: #218838;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .logout-btn:hover {
+      background-color: #1e7e34;
+    }
+</style>
+
 <body>
+  <div class="logout-container">
+    <form action="./logica/salir.php" method="POST">
+      <button type="submit" class="logout-btn">CERRAR SESIÓN</button>
+    </form>
+  </div>
 
   <nav class="navbar navbar-expand-lg">
     <div class="container">

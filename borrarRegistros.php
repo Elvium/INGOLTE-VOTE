@@ -1,5 +1,5 @@
 <?php
-include 'db-conexion.php';
+include './logica/db-conexion.php';
 
 $sqlBorrarVotaciones = "DELETE FROM votaciones";
 $borrado1 = mysqli_query($conexion, $sqlBorrarVotaciones);

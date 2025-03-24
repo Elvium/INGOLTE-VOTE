@@ -1,6 +1,6 @@
 <?php
 require_once('tcpdf/tcpdf.php'); //Llamando a la Libreria TCPDF
-require_once('db-conexion.php'); //Llamando a la conexión para BD
+require_once('./logica/db-conexion.php'); //Llamando a la conexión para BD
 date_default_timezone_set('America/Bogota');
 
 

@@ -1,50 +1,5 @@
 <?php
-include 'db-conexion.php';
-
-$cc = $_POST['cc'] ?? null;
-$pass = $_POST['p'] ?? null;
-
-if ($cc != null && $pass != null) {
-
-
-  $sqllogin = "SELECT username, pss, rol FROM usingolte WHERE username='$cc'";
-  $alerta = mysqli_query($conexion, $sqllogin);
-
-  if (!$alerta) {
-    echo '<script>
-    alert("Error al iniciar Sesion");
-    </script>';
-  } else {
-    if ($row = $alerta->fetch_assoc()) {
-
-      if ($row['pss'] == $pass) {
-
-        if ($row['rol'] == 'poder') {
-
-          header('Location: http://votaringolte.online/asistencia.php');
-          exit;
-
-        } elseif ($row['rol'] == 'admin') {
-          header('Location: http://votaringolte.online/admin.php');
-          exit;
-        } elseif ($row['rol'] == 'plancha') {
-          header('Location: http://votaringolte.online/plancha.php');
-          exit;
-        } elseif ($row['rol'] == 'resultado') {
-          header('Location: http://votaringolte.online/resultados.php');
-          exit;
-        } else {
-          header('Location: http://votaringolte.online/votaciones.php');
-          exit;
-        }
-      } else {
-        echo '<script>
-        alert("Usuario o Contraseña erroneo");
-        </script>';
-      }
-    }
-  }
-}
+include './logica/db-conexion.php';
 
 ?>
 
@@ -97,7 +52,12 @@ if ($cc != null && $pass != null) {
       <div class="col-md-6 col-lg-4">
         <div class="card p-4">
           <h2 class="text-center text-success mb-4">Iniciar Sesión</h2>
-          <form method="post">
+          <?php
+            if (isset($_GET['error']) && $_GET['error'] == 1) {
+              echo '<p class="text-danger text-center"> Datos incorrectos </p>';
+            }
+          ?>
+          <form action="logica/loguear.php" method="post">
             <div class="mb-3">
               <input type="text" name="cc" class="form-control" placeholder="Usuario" required />
             </div>
