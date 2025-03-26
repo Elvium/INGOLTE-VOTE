@@ -1,5 +1,6 @@
 <?php
 include './logica/db-conexion.php';
+session_start();
 
 $plancha = $_POST['plancha'] ?? null;
 

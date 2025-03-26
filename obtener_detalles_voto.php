@@ -1,5 +1,6 @@
 <?php
 include './logica/db-conexion.php';
+session_start();
 
 header('Content-Type: application/json'); // Aseguramos que la respuesta será JSON
 
