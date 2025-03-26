@@ -118,10 +118,10 @@ session_start();
           if ($ejecucionCandidatos) {
             while ($row = mysqli_fetch_array($ejecucionCandidatos)) {
               echo "<tr>
-                      <td>" . $row['nombre'] . "</td>
-                      <td>" . number_format($row['totalAcciones']) . "</td>
+                      <td>" . $row['Nombre'] . "</td>
+                      <td>" . number_format($row['TotalAcciones']) . "</td>
                     </tr>";
-              $totales += intval($row['totalAcciones']);
+              $totales += intval($row['TotalAcciones']);
             }
             echo "<tr class='table-secondary'>
                     <td><strong>Total de Votos</strong></td>
