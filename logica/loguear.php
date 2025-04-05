@@ -22,6 +22,9 @@ if($resultado -> num_rows > 0){
         header('Location: ../index.php?error=1');
         exit();
     }
+}else{
+    header('Location: ../index.php?error=1');
+        exit();
 }
 
 ?>

@@ -2,9 +2,6 @@
 include './logica/db-conexion.php';
 
 
-
-
-
 $sqlactualizarBase="SELECT * FROM poderes ORDER by fecha,ID ASC ";
 
 $sqlActualizacion=mysqli_query($conexion,$sqlactualizarBase);

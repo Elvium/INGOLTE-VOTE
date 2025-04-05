@@ -1,5 +1,6 @@
 <?php
 include './logica/db-conexion.php';
+session_start();
 ?>
 
 <head>
@@ -117,7 +118,7 @@ include './logica/db-conexion.php';
           if ($ejecucionCandidatos) {
             while ($row = mysqli_fetch_array($ejecucionCandidatos)) {
               echo "<tr>
-                      <td>" . $row['nombre'] . "</td>
+                      <td>" . $row['Nombre'] . "</td>
                       <td>" . number_format($row['TotalAcciones']) . "</td>
                     </tr>";
               $totales += intval($row['TotalAcciones']);

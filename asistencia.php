@@ -1,5 +1,8 @@
 <?php
 include './logica/db-conexion.php';
+include './logica/configSesion.php';
+
+session_start();
 
 $ccAsistencia = $_POST['cc'] ?? null;
 $ccConsulta = $_POST['consulta'] ?? null;

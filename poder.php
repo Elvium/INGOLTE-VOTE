@@ -1,6 +1,8 @@
 <?php
 include './logica/db-conexion.php';
 
+session_start();
+
 $ccSocio = $_POST['ccSocio'] ?? null;
 $Apoderado = $_POST['ccApoderado'] ?? null;
 $nm = $_POST['nmApoderado'] ?? null;

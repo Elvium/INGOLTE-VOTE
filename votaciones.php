@@ -1,5 +1,8 @@
 <?php
 include './logica/db-conexion.php';
+include './logica/configSesion.php';
+
+session_start();
 
 // Obtener el número de votantes actuales para mostrarlo en el pie de página
 $sqlcantVotantes = "SELECT COUNT(*) as vot FROM votaciones";
