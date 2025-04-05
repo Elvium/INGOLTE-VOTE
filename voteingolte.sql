@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 21-03-2025 a las 22:50:57
+-- Tiempo de generación: 05-04-2025 a las 16:44:27
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -40,8 +40,8 @@ CREATE TABLE `asistencia` (
 --
 
 INSERT INTO `asistencia` (`ID`, `Nombre`, `Cedula`, `Acciones`, `Voto`) VALUES
-(1, 'oscar ronaldo', 1090501629, 100, 1),
-(2, 'oscar', 13472081, 100, 1);
+(1, 'Johan Sebas', 1005028827, 150, 1),
+(2, 'Oscar', 1090501629, 100, 1);
 
 -- --------------------------------------------------------
 
@@ -56,7 +56,7 @@ CREATE TABLE `base` (
   `Acciones` int(3) NOT NULL,
   `Poder` tinyint(1) NOT NULL DEFAULT 0,
   `Apoderado` int(15) DEFAULT NULL,
-  `nmApoderado` varchar(30) DEFAULT NULL
+  `nmApoderado` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
@@ -64,8 +64,8 @@ CREATE TABLE `base` (
 --
 
 INSERT INTO `base` (`ID`, `Nombre`, `Cedula`, `Acciones`, `Poder`, `Apoderado`, `nmApoderado`) VALUES
-(1, 'oscar ronaldo', 1090501629, 100, 0, NULL, NULL),
-(2, 'oscar', 13472081, 100, 0, NULL, NULL);
+(1, 'Oscar', 1090501629, 100, 1, 1005028827, 'JOHAN SEBAS'),
+(2, 'Johan Sebas', 1005028827, 50, 0, 0, '');
 
 -- --------------------------------------------------------
 
@@ -76,16 +76,78 @@ INSERT INTO `base` (`ID`, `Nombre`, `Cedula`, `Acciones`, `Poder`, `Apoderado`, 
 CREATE TABLE `plancha` (
   `ID` int(2) NOT NULL,
   `Nombre` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish2_ci NOT NULL,
-  `totalAcciones` int(5) DEFAULT 0
+  `TotalAcciones` int(5) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
 --
 -- Volcado de datos para la tabla `plancha`
 --
 
-INSERT INTO `plancha` (`ID`, `Nombre`, `totalAcciones`) VALUES
-(102, 'Plancha 1 protesta', 600),
-(103, 'Plancha 2 Reinas', 0);
+INSERT INTO `plancha` (`ID`, `Nombre`, `TotalAcciones`) VALUES
+(102, '1. Futbolistas', 150),
+(103, '2. Golfistas', 100);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `poderes`
+--
+
+CREATE TABLE `poderes` (
+  `ID` int(11) NOT NULL,
+  `ccAccionista` int(11) NOT NULL COMMENT 'cedulaAccionista',
+  `nmAccionista` varchar(255) NOT NULL COMMENT 'nombreAccionista',
+  `ccApoderado` int(11) NOT NULL,
+  `nmApoderado` varchar(255) NOT NULL,
+  `nAcciones` varchar(11) NOT NULL,
+  `fecha` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
+
+--
+-- Volcado de datos para la tabla `poderes`
+--
+
+INSERT INTO `poderes` (`ID`, `ccAccionista`, `nmAccionista`, `ccApoderado`, `nmApoderado`, `nAcciones`, `fecha`) VALUES
+(1, 1090501629, 'Oscar', 1005028827, 'JOHAN SEBAS', '100', '2025-04-15'),
+(2, 1090501629, 'Oscar', 1005028827, 'JOHAN SEBAS', '100', '2025-04-15');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `roles`
+--
+
+CREATE TABLE `roles` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
+
+--
+-- Volcado de datos para la tabla `roles`
+--
+
+INSERT INTO `roles` (`id`, `nombre`) VALUES
+(1, 'ADMINISTRADOR');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `usuarios`
+--
+
+CREATE TABLE `usuarios` (
+  `id` int(11) NOT NULL,
+  `usuario` varchar(255) NOT NULL,
+  `clave` varchar(100) NOT NULL,
+  `id_rol` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
+
+--
+-- Volcado de datos para la tabla `usuarios`
+--
+
+INSERT INTO `usuarios` (`id`, `usuario`, `clave`, `id_rol`) VALUES
+(1, 'Sebastian Lopez', '$2y$10$TOy3pjbW09SYYhNfEaH4k.4Lrlndijr/lLn2mP31tAeGKguwX0TuS', 1);
 
 -- --------------------------------------------------------
 
@@ -95,9 +157,9 @@ INSERT INTO `plancha` (`ID`, `Nombre`, `totalAcciones`) VALUES
 
 CREATE TABLE `votaciones` (
   `ID` int(11) NOT NULL,
-  `nombre` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish2_ci NOT NULL,
-  `cedula` int(30) NOT NULL,
-  `plancha` int(2) NOT NULL,
+  `Nombre` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish2_ci NOT NULL,
+  `Cedula` int(30) NOT NULL,
+  `Plancha` int(2) NOT NULL,
   `Acciones` int(5) NOT NULL,
   `Estado` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
@@ -106,9 +168,9 @@ CREATE TABLE `votaciones` (
 -- Volcado de datos para la tabla `votaciones`
 --
 
-INSERT INTO `votaciones` (`ID`, `nombre`, `cedula`, `plancha`, `Acciones`, `Estado`) VALUES
-(5, 'oscar ronaldo', 1090501629, 102, 100, 0),
-(6, 'oscar', 13472081, 102, 100, 0);
+INSERT INTO `votaciones` (`ID`, `Nombre`, `Cedula`, `Plancha`, `Acciones`, `Estado`) VALUES
+(1, 'Johan Sebas', 1005028827, 102, 150, 0),
+(2, 'Oscar', 1090501629, 103, 100, 0);
 
 --
 -- Índices para tablas volcadas
@@ -135,12 +197,32 @@ ALTER TABLE `plancha`
   ADD PRIMARY KEY (`ID`);
 
 --
+-- Indices de la tabla `poderes`
+--
+ALTER TABLE `poderes`
+  ADD PRIMARY KEY (`ID`),
+  ADD KEY `cedulaAccionista` (`ccAccionista`);
+
+--
+-- Indices de la tabla `roles`
+--
+ALTER TABLE `roles`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_rol` (`id_rol`);
+
+--
 -- Indices de la tabla `votaciones`
 --
 ALTER TABLE `votaciones`
   ADD PRIMARY KEY (`ID`),
-  ADD KEY `Plancha` (`plancha`),
-  ADD KEY `cedula` (`cedula`);
+  ADD KEY `Plancha` (`Plancha`),
+  ADD KEY `cedula` (`Cedula`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -165,10 +247,28 @@ ALTER TABLE `plancha`
   MODIFY `ID` int(2) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=104;
 
 --
+-- AUTO_INCREMENT de la tabla `poderes`
+--
+ALTER TABLE `poderes`
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT de la tabla `roles`
+--
+ALTER TABLE `roles`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT de la tabla `votaciones`
 --
 ALTER TABLE `votaciones`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Restricciones para tablas volcadas
@@ -178,13 +278,25 @@ ALTER TABLE `votaciones`
 -- Filtros para la tabla `asistencia`
 --
 ALTER TABLE `asistencia`
-  ADD CONSTRAINT `asistencia_ibfk_1` FOREIGN KEY (`cedula`) REFERENCES `base` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `asistencia_ibfk_1` FOREIGN KEY (`cedula`) REFERENCES `base` (`Cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `poderes`
+--
+ALTER TABLE `poderes`
+  ADD CONSTRAINT `poderes_ibfk_1` FOREIGN KEY (`ccAccionista`) REFERENCES `base` (`Cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  ADD CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`id_rol`) REFERENCES `roles` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `votaciones`
 --
 ALTER TABLE `votaciones`
-  ADD CONSTRAINT `votaciones_ibfk_1` FOREIGN KEY (`plancha`) REFERENCES `plancha` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `votaciones_ibfk_1` FOREIGN KEY (`plancha`) REFERENCES `plancha` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `votaciones_ibfk_2` FOREIGN KEY (`cedula`) REFERENCES `asistencia` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
