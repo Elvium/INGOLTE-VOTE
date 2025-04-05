@@ -8,6 +8,7 @@ $ccAsistencia = $_POST['cc'] ?? null;
 $ccConsulta = $_POST['consulta'] ?? null;
 $accion = 0;
 $acciones = 0;
+$socioSinAcciones = 0;
 
 if ($ccAsistencia != null) {
     // Verifica si la persona ya está registrada en la tabla de asistencia
@@ -31,44 +32,45 @@ if ($ccAsistencia != null) {
 
             if (!empty($cc)) {
                 // Verifica si el apoderado ya votó
-                $sqlVerificarVotoApoderado = "SELECT * FROM asistencia WHERE Cedula = '$Apoderado'";
+                $sqlVerificarVotoApoderado = "SELECT * FROM asistencia WHERE Cedula = '$Apoderado' and Voto = '1'";
                 $consultaVotoApoderado = mysqli_query($conexion, $sqlVerificarVotoApoderado);
 
                 if (mysqli_num_rows($consultaVotoApoderado) > 0) {
-                    // Si el apoderado ya votó, no restamos sus acciones
-                    echo '<script>alert("El apoderado ya ha votado, por lo tanto, se registrará con las acciones disponibles.");</script>';
+                    // El apoderado ya votó, no restamos sus acciones
+                    $socioSinAcciones = 1;
+                   
                 } else {
                     // Si el apoderado no ha votado, le quitamos las acciones
                     $sqlactualizarAsistencia = "UPDATE asistencia SET Acciones = Acciones - $acc  WHERE Cedula='$Apoderado'";
                     $ejecutar2 = mysqli_query($conexion, $sqlactualizarAsistencia);
+                    // Actualizamos el poder del socio
+                    $sqlactualizarSocio = "UPDATE base SET Poder = 0, Apoderado= NULL, nmApoderado=NULL  WHERE Cedula='$cc'";
+                    $ejecutar1 = mysqli_query($conexion, $sqlactualizarSocio);
                 }
-
-                // Actualizamos el poder del socio
-                $sqlactualizarSocio = "UPDATE base SET Poder = 0, Apoderado= NULL, nmApoderado=NULL  WHERE Cedula='$cc'";
-                $ejecutar1 = mysqli_query($conexion, $sqlactualizarSocio);
             }
         }
 
-        // Busca las acciones de la persona que se registra como apoderado
-        $sqlBusquedaAccionesApoderado = "SELECT SUM(Acciones) as total, nmApoderado as nm FROM base WHERE Apoderado= '$ccAsistencia'";
-        $consulta1 = mysqli_query($conexion, $sqlBusquedaAccionesApoderado);
+        if ($socioSinAcciones != 1) {
+            // Busca las acciones de la persona que se registra como apoderado
+            $sqlBusquedaAccionesApoderado = "SELECT SUM(Acciones) as total, nmApoderado as nm FROM base WHERE Apoderado= '$ccAsistencia'";
+            $consulta1 = mysqli_query($conexion, $sqlBusquedaAccionesApoderado);
 
-        if ($row = $consulta1->fetch_assoc()) {
-            $acciones = $row['total'];
-            $nombreAsistente = $row['nm'];
-        }
+            if ($row = $consulta1->fetch_assoc()) {
+                $acciones = $row['total'];
+                $nombreAsistente = $row['nm'];
+            }
 
-        // Busca las acciones de la persona que se registra y es socio y las suma a las anteriores si tiene
-        $sqlBusquedaAccionesSocio = "SELECT Acciones , Nombre FROM base WHERE Cedula = '$ccAsistencia'";
-        $consulta2 = mysqli_query($conexion, $sqlBusquedaAccionesSocio);
+            // Busca las acciones de la persona que se registra y es socio y las suma a las anteriores si tiene
+            $sqlBusquedaAccionesSocio = "SELECT Acciones , Nombre FROM base WHERE Cedula = '$ccAsistencia'";
+            $consulta2 = mysqli_query($conexion, $sqlBusquedaAccionesSocio);
 
-        if ($row = $consulta2->fetch_assoc()) {
-            $acciones += $row['Acciones'];
-            $nombreAsistente = $row['Nombre'];
-        }
+            if ($row = $consulta2->fetch_assoc()) {
+                $acciones += $row['Acciones'];
+                $nombreAsistente = $row['Nombre'];
+            }
 
-        // Si tiene acciones, registra a la persona en la tabla de asistencia
-        if ($acciones != 0) {
+            // Si tiene acciones, registra a la persona en la tabla de asistencia
+        }elseif ($acciones != 0) {
             $sqlAsistencia = "INSERT INTO asistencia (Cedula,Nombre,Acciones) VALUES ('$ccAsistencia','$nombreAsistente',$acciones)";
             $ejecutar = mysqli_query($conexion, $sqlAsistencia);
 
@@ -78,7 +80,7 @@ if ($ccAsistencia != null) {
                 echo '<script>alert("Bienvenido a las votaciones ' . $nombreAsistente . '");</script>';
             }
         } else {
-            echo '<script>alert("Este accionista no cuenta con acciones");</script>';
+            echo '<script>alert("El apoderado ya ha votado, no puede participar en las votaciones");</script>';
         }
     }
 
